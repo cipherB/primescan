@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import JsonResponse
 import cv2
 # from barcode import decode
-import numpy as np
 from pyzbar.pyzbar import decode
 from .models import Scans, Products
 from django.core.files.storage import default_storage
