@@ -1,48 +1,83 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-import cv2
+# import cv2
 # from barcode import decode
 from pyzbar.pyzbar import decode
 from .models import Scans, Products
+from PIL import Image, ImageDraw  # Pillow library for image handling
 from django.core.files.storage import default_storage
 
-def barcode_reader(image):
-    img = cv2.imread(image)
+# def barcode_reader(image):
+#     img = cv2.imread(image)
       
-    # Decode the barcode image
-    detectedBarcodes = decode(img)
+#     # Decode the barcode image
+#     detectedBarcodes = decode(img)
     
-    # If not detected then print the message
-    if not detectedBarcodes:
-        return dict(error="Barcode Not Detected or your barcode is blank/corrupted!")
-    else:
+#     # If not detected then print the message
+#     if not detectedBarcodes:
+#         return dict(error="Barcode Not Detected or your barcode is blank/corrupted!")
+#     else:
     
-        # Traverse through all the detected barcodes in image
-        for barcode in detectedBarcodes:  
+#         # Traverse through all the detected barcodes in image
+#         for barcode in detectedBarcodes:  
         
-            # Locate the barcode position in image
+#             # Locate the barcode position in image
+#             (x, y, w, h) = barcode.rect
+            
+#             # Put the rectangle in image using 
+#             # cv2 to highlight the barcode
+#             cv2.rectangle(img, (x-10, y-10),
+#                         (x + w+10, y + h+10), 
+#                         (255, 0, 0), 2)
+            
+#             if barcode.data!="":
+            
+#             # Print the barcode data
+#                 return dict(success="Barcode fetched", data={
+#                     "product_id": barcode.data,
+#                     "type": barcode.type
+#                 })
+#                 # print(barcode.data)
+#                 # print(barcode.type)
+                 
+#     #Display the image
+#     # cv2.imshow("Image", img)
+#     # cv2.waitKey(0)
+#     # cv2.destroyAllWindows()
+    
+def barcode_reader2(image_path):
+    # Open the image using Pillow
+    img = Image.open(image_path)
+    
+    # Decode the barcode image
+    detected_barcodes = decode(img)
+    
+    # If not detected, print the message
+    if not detected_barcodes:
+        return {"error": "Barcode Not Detected or your barcode is blank/corrupted!"}
+    else:
+        # Traverse through all the detected barcodes in the image
+        for barcode in detected_barcodes:  
+            # Extract barcode data
+            barcode_data = barcode.data.decode('utf-8')
+            barcode_type = barcode.type
+            
+            # Extract barcode position
             (x, y, w, h) = barcode.rect
             
-            # Put the rectangle in image using 
-            # cv2 to highlight the barcode
-            cv2.rectangle(img, (x-10, y-10),
-                        (x + w+10, y + h+10), 
-                        (255, 0, 0), 2)
-            
-            if barcode.data!="":
+            # Highlight the barcode on the image
+            img = img.convert("RGB")  # Ensure that the image is in RGB mode
+            draw = ImageDraw.Draw(img)
+            draw.rectangle([x-10, y-10, x+w+10, y+h+10], outline="red", width=2)
             
             # Print the barcode data
-                return dict(success="Barcode fetched", data={
-                    "product_id": barcode.data,
-                    "type": barcode.type
-                })
-                # print(barcode.data)
-                # print(barcode.type)
-                 
-    #Display the image
-    # cv2.imshow("Image", img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+            return {
+                "success": "Barcode fetched",
+                "data": {
+                    "product_id": barcode_data,
+                    "type": barcode_type
+                }
+            }
 
 class ProductService:
     def scan_code(self, request, **kwargs):
@@ -53,7 +88,7 @@ class ProductService:
         # Get the file path from the storage system
         file_path = default_storage.path(scanned_img.scan_image.name)
 
-        data = barcode_reader(str(file_path))
+        data = barcode_reader2(str(file_path))
         scanned_img.delete()
         return data
         # return dict(success="Image scanned",data={})
