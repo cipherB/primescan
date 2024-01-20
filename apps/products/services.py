@@ -6,6 +6,7 @@ from pyzbar.pyzbar import decode
 from .models import Scans, Products
 from PIL import Image, ImageDraw  # Pillow library for image handling
 from django.core.files.storage import default_storage
+from pyzxing import BarCodeReader
 
 # def barcode_reader(image):
 #     img = cv2.imread(image)
@@ -78,6 +79,36 @@ def barcode_reader2(image_path):
                     "type": barcode_type
                 }
             }
+
+# def barcode_reader3(image_path):
+#     # Open the image using Pillow
+#     img = Image.open(image_path)
+
+#     # Convert image to grayscale (ZXing works better with grayscale images)
+#     img = img.convert("L")
+
+#     # Create a BarCodeReader instance
+#     barcode_reader = BarCodeReader()
+
+#     # Decode the barcode image
+#     decoded_barcodes = barcode_reader.decode(img)
+
+#     # If not detected, print the message
+#     if not decoded_barcodes:
+#         return {"error": "Barcode Not Detected or your barcode is blank/corrupted!"}
+#     else:
+#         # Extract data from the first detected barcode
+#         barcode_data = decoded_barcodes[0].data
+#         barcode_type = decoded_barcodes[0].format
+
+#         # Print the barcode data
+#         return {
+#             "success": "Barcode fetched",
+#             "data": {
+#                 "product_id": barcode_data,
+#                 "type": barcode_type
+#             }
+#         }
 
 class ProductService:
     def scan_code(self, request, **kwargs):
