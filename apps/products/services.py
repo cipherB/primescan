@@ -6,7 +6,7 @@ from pyzbar.pyzbar import decode
 from .models import Scans, Products
 from PIL import Image, ImageDraw  # Pillow library for image handling
 from django.core.files.storage import default_storage
-from pyzxing import BarCodeReader
+# from pyzxing import BarCodeReader
 
 # def barcode_reader(image):
 #     img = cv2.imread(image)
